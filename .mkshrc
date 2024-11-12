@@ -87,6 +87,14 @@ gcm() {
 lg() {
     rg -l "$1" | xargs less +/"$1"
 }
+lgo() {
+    selected_file=$(rg -l "$1" | fzy -l 30)
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+    vise "$selected_file"
+    lgo "$1"
+}
 
 alias pb='fd --type f -d 1 | xargs bat --theme=mocha -r :50'
 alias p='fd --type f -d 1 | xargs less'
