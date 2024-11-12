@@ -1,0 +1,96 @@
+set -o vi
+
+PS1="$(print '\033[0;31m[\033[1;33m${USER:=$(id -un)}''\033[0;32m@\033[0;34m${HOSTNAME:=$(hostname -s)}' '\033[0;35m${PWD/#"$HOME"/\~}\033[0;31m]\033[0m\n$ ' )"
+
+HISTFILE="$HOME/.mksh_history"
+HISTSIZE=100000
+
+export EDITOR=vis
+export PATH="/opt/homebrew/bin:$PATH"
+export PATH="/Users/david.kerrigan/.local/bin:$PATH"
+export PATH="/Users/david.kerrigan/bin:$PATH"
+export PATH="/Users/david.kerrigan/Downloads/gradle-8.2.1/bin:$PATH"
+export PATH="/opt/homebrew/opt/gradle@7/bin:$PATH"
+export EDITOR="vise"
+export PYENV_ROOT="$HOME/.pyenv"
+export BASH_SILENCE_DEPRECATION_WARNING=1
+export PATH="/opt/homebrew/opt/util-linux/bin:$PATH"
+
+a() {
+    selected_file=$(fd --type f | fzy -l 30)
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+    vise "$selected_file"
+    o
+}
+o() {
+    selected_file=$(fd --type f -d 1 | fzy -l 30)
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+    vise "$selected_file"
+    o
+}
+c() {
+    selected_dir=$(fd --type d . "/Users/david.kerrigan" | fzy -l 30)
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+    cd "$selected_dir"
+}
+cpd() {
+    selected_dir=$(fd --type d . "/Users/david.kerrigan" | fzy -l 30)
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+    cp -r "$selected_dir" ./
+}
+cpf() {
+    selected_dir=$(fd --type f . "/Users/david.kerrigan" | fzy -l 30)
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+    cp -r "$selected_dir" ./
+}
+mpd() {
+    selected_dir=$(fd --type d . "/Users/david.kerrigan" | fzy -l 30)
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+    mv "$selected_dir" ./
+}
+mpf() {
+    selected_dir=$(fd --type f . "/Users/david.kerrigan" | fzy -l 30)
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+    mv "$selected_dir" ./
+}
+gcm() {
+    git commit -a -m "$1" && git push
+}
+
+alias p='fd --type f -d 1 | xargs bat --theme=mocha -r :100'
+alias gtp='git add --all; git commit -a -m "auto commit"; git push'
+alias gtu='git pull'
+alias gtb="git rev-parse --abbrev-ref HEAD"
+alias gtc="git checkout \$(git branch | fzy -l 30)"
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias vis="vise"
+alias ksd="aws eks update-kubeconfig --region us-east-1 --name adrenaline-dev-use1"
+alias ksq="aws eks update-kubeconfig --region us-east-1 --name adrenaline-stg-use1"
+alias ksp="aws eks update-kubeconfig --region us-east-1 --name adrenaline-prd-use1"
+alias pys='eval "$(pyenv init -)"'
+alias jvs='source "$HOME/.sdkman/bin/sdkman-init.sh"'
+alias s="ncmpcpp"
+alias v="vis"
+alias l='ls -1'
+alias spv="setsid -f mpv"
+alias scdl='~/.pyenv/shims/scdl'
+alias spotdl='~/.pyenv/shims/spotdl'
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/david.kerrigan/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
