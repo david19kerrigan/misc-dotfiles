@@ -84,6 +84,9 @@ mpf() {
 gcm() {
     git commit -a -m "$1" && git push
 }
+lg() {
+    rg -l "$1" | xargs less +/"$1"
+}
 
 alias pb='fd --type f -d 1 | xargs bat --theme=mocha -r :50'
 alias p='fd --type f -d 1 | xargs less'
