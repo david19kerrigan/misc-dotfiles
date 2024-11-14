@@ -16,75 +16,48 @@ export PYENV_ROOT="$HOME/.pyenv"
 export BASH_SILENCE_DEPRECATION_WARNING=1
 export PATH="/opt/homebrew/opt/util-linux/bin:$PATH"
 
-oa() {
-    selected_file=$(fd --type f . "/Users/david.kerrigan" | fzy -l 30)
-    if [ $? -ne 0 ]; then
-        return 0
-    fi
-    cd $(dirname "$selected_file")
-    vise "$selected_file"
-}
-oc() {
-    selected_file=$(dirname $(fd --type f . "/Users/david.kerrigan" | fzy -l 30))
-    if [ $? -ne 0 ]; then
-        return 0
-    fi
-    cd "$selected_file"
+gcm() { 
+    git commit -a -m "$1" && git push 
 }
 o() {
-    selected_file=$(fd --type f -d 1 | fzy -l 30)
+    selected_file=$(fd . "/Users/david.kerrigan/" | fzy -l 30)
     if [ $? -ne 0 ]; then
         return 0
     fi
-    vise "$selected_file"
-    o
-}
-c() {
-    selected_dir=$(fd --type d . "/Users/david.kerrigan" | fzy -l 30)
-    if [ $? -ne 0 ]; then
-        return 0
+    if [ -d "$selected_file" ]; then
+        cd "$selected_file"
+    elif [ -f "$selected_file" ]; then
+        cd $(dirname "$selected_file")
+        vise "$selected_file"
     fi
-    cd "$selected_dir"
-}
-ci() {
-    selected_dir=$(fd --type d | fzy -l 30)
-    if [ $? -ne 0 ]; then
-        return 0
-    fi
-    cd "$selected_dir"
-}
-cpd() {
-    selected_dir=$(fd --type d . "/Users/david.kerrigan" | fzy -l 30)
-    if [ $? -ne 0 ]; then
-        return 0
-    fi
-    cp -r "$selected_dir" ./
 }
 cpf() {
-    selected_dir=$(fd --type f . "/Users/david.kerrigan" | fzy -l 30)
+    selected_dir=$(fd . "/Users/david.kerrigan/" | fzy -l 30)
     if [ $? -ne 0 ]; then
         return 0
     fi
-    cp -r "$selected_dir" ./
+    dest_dir=$(fd --type d . "/Users/david.kerrigan/" | fzy -l 30)
+    if [ $? -ne 0 ]; then
+        dest_dir="./"
+    fi
+    if [ -d "$selected_dir" ]; then
+        cp -r "$selected_dir" "$dest_dir"
+    elif [ -f "$selected_dir" ]; then
+        cp "$selected_dir" "$dest_dir"
+    fi
 }
-mpd() {
-    selected_dir=$(fd --type d . "/Users/david.kerrigan" | fzy -l 30)
+mvf() {
+    selected_dir=$(fd . "/Users/david.kerrigan/" | fzy -l 30)
     if [ $? -ne 0 ]; then
         return 0
     fi
-    mv "$selected_dir" ./
-}
-mpf() {
-    selected_dir=$(fd --type f . "/Users/david.kerrigan" | fzy -l 30)
+    dest_dir=$(fd --type d . "/Users/david.kerrigan/" | fzy -l 30)
     if [ $? -ne 0 ]; then
-        return 0
+        dest_dir="./"
     fi
-    mv "$selected_dir" ./
+    mv "$selected_dir" "$dest_dir"
 }
-gcm() {
-    git commit -a -m "$1" && git push
-}
-lg() {
+lgp() {
     rg -l "$1" | xargs less +/"$1"
 }
 lgo() {
@@ -92,29 +65,48 @@ lgo() {
     if [ $? -ne 0 ]; then
         return 0
     fi
-    vise "$selected_file"
+    vise +/"$1" "$selected_file" 
     lgo "$1"
 }
+f() {
+    selected_dir=$(fd -d 1 | fzy -l 30)
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+    if [ -d "$selected_dir" ]; then
+        cd "$selected_dir"
+    elif [ -f "$selected_dir" ]; then
+        vise "$selected_dir"
+    fi
+    f
+}
+m(){
+    mpc clear
+    selected_dir=$(fd --type d . "/Users/david.kerrigan/Music" | fzy -l 30)
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+    mpc add "$selected_dir"
+    mpc play
+}
 
-alias pb='fd --type f -d 1 | xargs bat --theme=mocha -r :50'
 alias p='fd --type f -d 1 | xargs less'
+alias pb='fd --type f -d 1 | xargs bat -r :50 --theme=mocha'
+alias h='eval $(history -1000 | fzy | awk "{\$1=\"\"; print \$0}")'
+alias v="vise"
+alias l='ls -1 --color -p'
+alias la='ls -1 -a --color -p'
+alias c='cd'
+alias tree='tree -C'
 alias gtp='git add --all; git commit -a -m "auto commit"; git push'
 alias gtu='git pull'
 alias gtb="git rev-parse --abbrev-ref HEAD"
 alias gtc="git checkout \$(git branch | fzy -l 30)"
-alias ls='ls --color=auto'
-alias grep='grep --color=auto'
-alias vis="vise"
 alias ksd="aws eks update-kubeconfig --region us-east-1 --name adrenaline-dev-use1"
 alias ksq="aws eks update-kubeconfig --region us-east-1 --name adrenaline-stg-use1"
 alias ksp="aws eks update-kubeconfig --region us-east-1 --name adrenaline-prd-use1"
 alias pys='eval "$(pyenv init -)"'
 alias jvs='source "$HOME/.sdkman/bin/sdkman-init.sh"'
-alias s="ncmpcpp"
-alias v="vis"
-alias i='zi'
-alias l='ls -1'
-alias e='cd'
 alias spv="setsid -f mpv"
 alias scdl='~/.pyenv/shims/scdl'
 alias spotdl='~/.pyenv/shims/spotdl'
