@@ -15,22 +15,24 @@ export PATH="/opt/homebrew/opt/util-linux/bin:$PATH"
 export PYENV_ROOT="$HOME/.pyenv"
 export BASH_SILENCE_DEPRECATION_WARNING=1
 
-handle_res() {
-    test -z "$1" && return
-    test -d "$1" && cd "$selected_res"
-    test -f "$1" && cd $(dirname "$selected_res") && vise $(basename "$selected_res")
-}
 ro() {
     selected_res=$(rg -l -g "!tags" "$1" | fzy -l 50)
     test -z "$selected_res" && return
     vise +/"$1" "$selected_res" 
-    lo "$1"
+    ro "$1"
 }
 ms() { selected_song=$(mpc playlist | nl -s ". " | fzy -l 50 | awk -F '.' '{print $1}' | xargs) && mpc play "$selected_song"; }
 gm() { git commit -a -m "$1" && git push; }
 rp() { rg -l -g "!tags" "$1" | xargs less +/"$1"; }
 cl() { readlink -f "$1" | pbcopy; }
+t() {
+    level="${2:-99}"
+    dir="${1:-.}"
+    tree -C -I "__pycache__" -L"$level" "$dir" | less -R; 
+}
 
+alias handle_res='test -d "$selected_res" && cd "$selected_res" ; \
+    test -f "$selected_res" && cd $(dirname "$selected_res") && vise $(basename "$selected_res")'
 alias copy_or_move_helper='selected_res=$(fd . "$HOME/Documents" | fzy -l 50) && \
     dest_dir=$(fd --type d . "$HOME/Documents" | fzy -l 50) && \
     test -z "$dest_dir" && dest_dir="./"'
@@ -42,21 +44,22 @@ alias mp='selected_dir=$(fd --type d . "$HOME/Music" | fzy -l 50) &&  \
     mpc add "$selected_dir" && \
     mpc play'
 alias mf='copy_or_move_helper ; mv "$selected_res" "$dest_dir"'
-alias oi='selected_res=$(fd | fzy -l 50) ; handle_res "$selected_res"'
-alias oc='selected_res=$(fd -d 1 | fzy -l 50) ; handle_res "$selected_res"'
-alias oa='selected_res=$(fd . "$HOME/Documents" | fzy -l 50) ; handle_res "$selected_res"'
+alias oi='selected_res=$(fd | fzy -l 50) ; handle_res'
+alias oa='selected_res=$(fd . "$HOME" | fzy -l 50) ; handle_res'
+alias oc='selected_res=$(fd -d 1 | fzy -l 50) ; handle_res'
 alias ba='echo $PWD >> ~/.marks ; cat ~/.marks | sort | uniq > ~/.marks'
 alias bj='selected=$(cat ~/.marks | fzy -l 50) && cd "$selected"'
+alias rg='rg -g "!tags"'
 alias p='fd --type f -d 1 | xargs less'
 alias h='eval $(history -1000 | fzy | awk "{\$1=\"\"; print \$0}")'
 alias v="vise"
 alias l='ls -1 -a --color -p'
 alias c='cd'
-alias tree='tree -C -I "__pycache__"'
 alias gp='git add --all; git commit -a -m "auto commit"; git push'
 alias gu='git pull'
 alias gb="git rev-parse --abbrev-ref HEAD"
 alias gc="git checkout \$(git branch | fzy -l 50)"
+alias gd="git diff master"
 alias ksd="aws eks update-kubeconfig --region us-east-1 --name adrenaline-dev-use1"
 alias ksq="aws eks update-kubeconfig --region us-east-1 --name adrenaline-stg-use1"
 alias ksp="aws eks update-kubeconfig --region us-east-1 --name adrenaline-prd-use1"
